@@ -1,0 +1,29 @@
+{
+  "name": "rethinkdb-nodash",
+  "version": "1.0.0",
+  "description": "A thin layer on top of RethinkDB driver that provides some useful conveniences.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atis--/rethinkdb-nodash.git"
+  },
+  "keywords": [
+    "rethinkdb",
+    "database",
+    "driver",
+    "reconnect",
+    "stream"
+  ],
+  "author": "Atis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/atis--/rethinkdb-nodash/issues"
+  },
+  "homepage": "https://github.com/atis--/rethinkdb-nodash#readme",
+  "dependencies": {
+    "rethinkdb": "^2.3.3"
+  }
+}
