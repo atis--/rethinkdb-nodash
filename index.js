@@ -79,6 +79,9 @@ module.exports = function (cfg) {
 
     // users can call this method to close the stream's underlying cursor
     const close_stream = function () {
+        // emit close event so readers can restart the stream if necessary
+        this.emit('close');
+
         if (this._cursor) {
             this._cursor.close()
             .then(() => {
@@ -127,7 +130,8 @@ module.exports = function (cfg) {
 
     // run query and produce a readable stream with the results
     TermBase.toStream = function (options) {
-        return real_run.call(this, conn, options)
+        const stream_conn = conn;
+        return real_run.call(this, stream_conn, options)
         .then(function (cursor) {
             const stream = new Readable({
                 objectMode: true,
@@ -135,6 +139,17 @@ module.exports = function (cfg) {
             });
             stream.close = close_stream;
             stream._cursor = cursor;
+
+            // if connection is already gone here, throw exception
+            if (!stream_conn.open || stream_conn.closing) {
+                stream.close();
+                throw new Error('db disconnect during stream setup');
+            }
+
+            // close stream in case the connection goes away at some point
+            stream_conn.once('close', function () {
+                stream.close();
+            });
 
             return stream;
         });
