@@ -79,18 +79,23 @@ module.exports = function (cfg) {
 
     // users can call this method to close the stream's underlying cursor
     const close_stream = function () {
-        // emit close event so readers can restart the stream if necessary
-        this.emit('close');
+        if (this.__closed__)
+            return;
+        this.__closed__ = true;
 
         if (this._cursor) {
             this._cursor.close()
             .then(() => {
                 this._cursor = null;
+                this.emit('close');
             })
             .catch(err => {
                 this._cursor = null;
                 this.emit('error', err);
+                this.emit('close');
             });
+        } else {
+            this.emit('close');
         }
     }
 
@@ -109,6 +114,7 @@ module.exports = function (cfg) {
                     // check for normal end of data (do not emit error)
                     if (err.name === 'ReqlDriverError'
                       && err.message === 'No more rows in the cursor.') {
+                        this.emit('end');   // no more data
                         this.close();
                         return;
                     }
