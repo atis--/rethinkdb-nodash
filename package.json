@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/atis--/rethinkdb-nodash#readme",
   "dependencies": {
+    "readable-stream": "^2.3.3",
     "rethinkdb": "^2.3.3"
   }
 }

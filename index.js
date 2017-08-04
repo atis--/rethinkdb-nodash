@@ -3,7 +3,7 @@
 const r = require('rethinkdb');
 const { Cursor } = require('rethinkdb/cursor');
 const { isConnection } = require('rethinkdb/net');
-const { Readable } = require('stream');
+const { Readable } = require('readable-stream');
 
 let conn = null;
 let reconnect_timer = null;
