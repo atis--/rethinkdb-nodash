@@ -99,39 +99,34 @@ module.exports = function (cfg) {
         }
     }
 
-    // ReadableStream _read() implementation
-    const _read = function (size) {
-        // if cursor is not available, then there's nothing we can do
-        const cursor = this._cursor;
-        if (!cursor) {
-            this.emit('error', new Error('db cursor not available'));
-            return;
-        }
-
-        const fetch_next = () => {
-            cursor.next((err, row) => {
-                if (err) {
-                    // check for normal end of data (do not emit error)
-                    if (err.name === 'ReqlDriverError'
-                      && err.message === 'No more rows in the cursor.') {
-                        this.emit('end');   // no more data
-                        this.close();
-                        return;
-                    }
-
-                    // unknown error, emit it
-                    this.emit('error', err);
+    const fetch_next = function (cursor) {
+        cursor.next((err, row) => {
+            if (err) {
+                // check for normal end of data (do not emit error)
+                if (err.name === 'ReqlDriverError'
+                  && err.message === 'No more rows in the cursor.') {
+                    this.emit('end');   // no more data
                     this.close();
                     return;
                 }
 
-                // keep fetching until consumers can no longer consume
-                if (this.push(row))
-                    fetch_next();
-            });
-        }
+                // unknown error, emit it
+                this.emit('error', err);
+                this.close();
+                return;
+            }
+            this.push(row);
+        });
+    }
 
-        fetch_next();
+    // ReadableStream _read() implementation
+    const _read = function (size) {
+        // if cursor is not available, then there's nothing we can do
+        if (!this._cursor) {
+            this.emit('error', new Error('db cursor not available'));
+            return;
+        }
+        fetch_next.call(this, this._cursor);
     }
 
     // run query and produce a readable stream with the results

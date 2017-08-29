@@ -1,6 +1,6 @@
 {
   "name": "rethinkdb-nodash",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A thin layer on top of RethinkDB driver that provides some useful conveniences.",
   "main": "index.js",
   "scripts": {
